@@ -14,7 +14,7 @@ import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText messageToShare;
+    EditText textToSearch;
     ImageView photo;
     Button takeAPhotoButton;
     Button shareButton;
@@ -25,10 +25,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        messageToShare = (EditText) findViewById(R.id.message);
+        textToSearch = (EditText) findViewById(R.id.message);
         photo = (ImageView) findViewById(R.id.photo);
         takeAPhotoButton = (Button) findViewById(R.id.camera);
-        shareButton = (Button) findViewById(R.id.share_id_butt);
+        shareButton = (Button) findViewById(R.id.searchID);
 
         takeAPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,27 +43,15 @@ public class MainActivity extends AppCompatActivity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//
-//                Intent callIntent = new Intent();
-//                callIntent.setAction(Intent.ACTION_DIAL);
-//                startActivity(callIntent);
-
-                Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                intent.putExtra(SearchManager.QUERY, "Android studio");
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(intent);
+                if (!textToSearch.getText().toString().isEmpty()){
+                    String searchText = textToSearch.getText().toString();
+                    Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                    intent.putExtra(SearchManager.QUERY, searchText);
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
                 }
 
-//                Intent sendIntent = new Intent();
-//
-//                sendIntent.setAction(Intent.ACTION_SEND);
-//                sendIntent.putExtra(Intent.EXTRA_TEXT, messageToShare.getText());
-//                sendIntent.setType("text/plain");
-//
-//// Verify that the intent will resolve to an activity
-//                if (sendIntent.resolveActivity(getPackageManager()) != null) {
-//                    startActivity(sendIntent);
-//                }
             }
         });
     }

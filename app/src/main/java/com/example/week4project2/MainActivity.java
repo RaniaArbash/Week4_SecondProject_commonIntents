@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     Button takeAPhotoButton;
     Button searchButton;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    ActivityResultLauncher<Intent> cameraResultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,89 +42,61 @@ public class MainActivity extends AppCompatActivity {
 
         textToSearch = (EditText) findViewById(R.id.query);
         photo = (ImageView) findViewById(R.id.photo);
-        takeAPhotoButton = (Button) findViewById(R.id.camera);
-        searchButton = (Button) findViewById(R.id.searchID);
-        if (checkSelfPermission(Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA},
-                    MY_CAMERA_REQUEST_CODE);
+        takeAPhotoButton = findViewById(R.id.camera);
+
+
+
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.CAMERA},MY_CAMERA_REQUEST_CODE);
         }
 
-        final ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
+        cameraResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK )  {
-                            // There are no request codes
-                            Intent data = result.getData();
-                            Bundle extra = data.getExtras();
-                            Bitmap imageFromCamaraApp = (Bitmap) extra.get("data");
-                            photo.setImageBitmap(imageFromCamaraApp);
-                        }
-                    }
-                });
-        takeAPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (cameraIntent.resolveActivity(getPackageManager()) != null)
-                    cameraActivityResultLauncher.launch(cameraIntent);
-
-                //startActivityForResult(cameraIntent,REQUEST_IMAGE_CAPTURE);// camera App id = 1
-            }
-        });
-
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!textToSearch.getText().toString().isEmpty()){
-
-                    Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                    searchIntent.putExtra(SearchManager.QUERY, textToSearch.getText().toString());
-                    if (searchIntent.resolveActivity(getPackageManager()) != null){
-                        startActivity(searchIntent);
-                    }
+            public void onActivityResult(ActivityResult result) {
+                // I have a result which is a photo
+                // I can do what I want with this result
+                if (result.getResultCode() == Activity.RESULT_OK){
+                    Intent data = result.getData();
+                    Bundle bundle = data.getExtras();
+                    Bitmap image = (Bitmap) bundle.get("data");
+                    photo.setImageBitmap(image);
                 }
             }
         });
 
-        // email app  id = 2
-        // clock app id = 3
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        takeAPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    cameraResultLauncher.launch(cameraIntent);
+                }else
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},MY_CAMERA_REQUEST_CODE);
+            }
+        });
 
-        if (requestCode == MY_CAMERA_REQUEST_CODE) {
 
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        searchButton =  findViewById(R.id.searchID);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
 
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                if (!textToSearch.getText().toString().isEmpty()){
+                    String query = textToSearch.getText().toString();
+                    searchIntent.putExtra(SearchManager.QUERY,query);
 
-            } else {
+                    if (searchIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(searchIntent);
+                    }
 
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+                }
+
 
             }
+        });
 
-        }
     }
-
-
-
-
-
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
-//            Bundle extra = data.getExtras();
-//            Bitmap imageFromCamaraApp = (Bitmap) extra.get("data");
-//            photo.setImageBitmap(imageFromCamaraApp);
-//        }
-//
-//    }
 }

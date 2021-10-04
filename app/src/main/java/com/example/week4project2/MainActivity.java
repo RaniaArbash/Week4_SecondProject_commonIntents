@@ -1,5 +1,6 @@
 package com.example.week4project2;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.SearchManager;
@@ -17,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     EditText textToSearch;
     ImageView photo;
     Button takeAPhotoButton;
-    Button shareButton;
+    Button searchButton;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
@@ -25,44 +26,51 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textToSearch = (EditText) findViewById(R.id.message);
+        textToSearch = (EditText) findViewById(R.id.query);
         photo = (ImageView) findViewById(R.id.photo);
         takeAPhotoButton = (Button) findViewById(R.id.camera);
-        shareButton = (Button) findViewById(R.id.searchID);
+        searchButton = (Button) findViewById(R.id.searchID);
 
         takeAPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                }
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (cameraIntent.resolveActivity(getPackageManager()) != null)
+                    startActivityForResult(cameraIntent,REQUEST_IMAGE_CAPTURE);// camera App id = 1
 
             }
         });
-        shareButton.setOnClickListener(new View.OnClickListener() {
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!textToSearch.getText().toString().isEmpty()){
-                    String searchText = textToSearch.getText().toString();
-                    Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                    intent.putExtra(SearchManager.QUERY, searchText);
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(intent);
+
+                    Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                    searchIntent.putExtra(SearchManager.QUERY, textToSearch.getText().toString());
+                    if (searchIntent.resolveActivity(getPackageManager()) != null){
+                        startActivity(searchIntent);
                     }
                 }
-
             }
         });
+
+        // email app  id = 2
+        // clock app id = 3
+
+
+
     }
 
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            photo.setImageBitmap(imageBitmap);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+            Bundle extra = data.getExtras();
+            Bitmap imageFromCamaraApp = (Bitmap) extra.get("data");
+            photo.setImageBitmap(imageFromCamaraApp);
         }
+
     }
 }

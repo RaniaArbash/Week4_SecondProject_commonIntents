@@ -2,9 +2,8 @@ package com.example.week4project2;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.Activity;
 import android.app.SearchManager;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,7 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-
+import android.content.Intent;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 public class MainActivity extends AppCompatActivity {
 
     EditText textToSearch;
@@ -31,13 +38,29 @@ public class MainActivity extends AppCompatActivity {
         takeAPhotoButton = (Button) findViewById(R.id.camera);
         searchButton = (Button) findViewById(R.id.searchID);
 
+
+        final ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK )  {
+                            // There are no request codes
+                            Intent data = result.getData();
+                            Bundle extra = data.getExtras();
+                            Bitmap imageFromCamaraApp = (Bitmap) extra.get("data");
+                            photo.setImageBitmap(imageFromCamaraApp);
+                        }
+                    }
+                });
         takeAPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (cameraIntent.resolveActivity(getPackageManager()) != null)
-                    startActivityForResult(cameraIntent,REQUEST_IMAGE_CAPTURE);// camera App id = 1
+                    cameraActivityResultLauncher.launch(cameraIntent);
 
+                //startActivityForResult(cameraIntent,REQUEST_IMAGE_CAPTURE);// camera App id = 1
             }
         });
 
@@ -57,20 +80,17 @@ public class MainActivity extends AppCompatActivity {
 
         // email app  id = 2
         // clock app id = 3
-
-
-
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
-            Bundle extra = data.getExtras();
-            Bitmap imageFromCamaraApp = (Bitmap) extra.get("data");
-            photo.setImageBitmap(imageFromCamaraApp);
-        }
-
-    }
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+//            Bundle extra = data.getExtras();
+//            Bitmap imageFromCamaraApp = (Bitmap) extra.get("data");
+//            photo.setImageBitmap(imageFromCamaraApp);
+//        }
+//
+//    }
 }

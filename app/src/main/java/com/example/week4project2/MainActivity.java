@@ -2,8 +2,11 @@ package com.example.week4project2;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.Manifest;
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.content.Intent;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,6 +26,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 public class MainActivity extends AppCompatActivity {
+    private static final int MY_CAMERA_REQUEST_CODE = 100;
 
     EditText textToSearch;
     ImageView photo;
@@ -37,7 +43,11 @@ public class MainActivity extends AppCompatActivity {
         photo = (ImageView) findViewById(R.id.photo);
         takeAPhotoButton = (Button) findViewById(R.id.camera);
         searchButton = (Button) findViewById(R.id.searchID);
-
+        if (checkSelfPermission(Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    MY_CAMERA_REQUEST_CODE);
+        }
 
         final ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -81,6 +91,29 @@ public class MainActivity extends AppCompatActivity {
         // email app  id = 2
         // clock app id = 3
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+
+            } else {
+
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+
+            }
+
+        }
+    }
+
+
+
+
 
 //
 //    @Override

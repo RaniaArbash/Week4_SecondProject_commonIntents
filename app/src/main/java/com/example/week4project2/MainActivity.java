@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textToSearch = (EditText) findViewById(R.id.query);
-        photo = (ImageView) findViewById(R.id.photo);
+        textToSearch =  findViewById(R.id.query);
+        photo =  findViewById(R.id.photo);
         takeAPhotoButton = findViewById(R.id.camera);
 
 
